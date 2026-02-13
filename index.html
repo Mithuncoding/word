@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WanderWord — Etymology Visualized</title>
+    <meta
+      name="description"
+      content="Trace the journey of words across civilizations. Watch etymological histories come alive on an interactive world map."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Doto:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-primary: #acd8c9;
+        --bg-panel: rgba(172, 216, 201, 0.95);
+        --text-primary: #000000;
+        --text-secondary: rgba(0, 0, 0, 0.6);
+        --accent: #000000;
+        --surface: rgba(255, 255, 255, 0.4);
+        --map-land: #97c8b9;
+        --map-bg: #acd8c9;
+        --shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+        --shadow-sm: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+      }
+
+      [data-theme="dark"] {
+        --bg-primary: #0a0f1a;
+        --bg-panel: rgba(10, 15, 26, 0.95);
+        --text-primary: #e0e0e0;
+        --text-secondary: rgba(224, 224, 224, 0.6);
+        --accent: #4ade80;
+        --surface: rgba(255, 255, 255, 0.05);
+        --map-land: #1a2744;
+        --map-bg: #0d1525;
+        --shadow: 4px 4px 0px 0px rgba(74, 222, 128, 0.4);
+        --shadow-sm: 2px 2px 0px 0px rgba(74, 222, 128, 0.4);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        overflow: hidden;
+        font-family: "IBM Plex Mono", monospace;
+        transition:
+          background-color 0.4s ease,
+          color 0.4s ease;
+      }
+
+      .font-mono {
+        font-family: "IBM Plex Mono", monospace;
+      }
+      .font-doto {
+        font-family: "Doto", sans-serif;
+      }
+
+      .vignette {
+        pointer-events: none;
+        position: fixed;
+        inset: 0;
+        box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.08);
+        z-index: 9999;
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg-primary);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--text-primary);
+        border-radius: 0;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* Animations */
+      @keyframes pulse-ring {
+        0% {
+          transform: scale(1);
+          opacity: 0.6;
+        }
+        100% {
+          transform: scale(2.5);
+          opacity: 0;
+        }
+      }
+      .pulse-ring {
+        animation: pulse-ring 1.5s ease-out infinite;
+      }
+
+      @keyframes typewriter {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      @keyframes blink-caret {
+        50% {
+          border-color: transparent;
+        }
+      }
+
+      .typewriter-text {
+        overflow: hidden;
+        white-space: nowrap;
+        border-right: 3px solid var(--accent);
+        animation:
+          typewriter 1.5s steps(10, end),
+          blink-caret 0.75s step-end infinite;
+      }
+
+      /* Grain overlay */
+      .grain::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.03;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        z-index: 9998;
+      }
+    </style>
+  </head>
+  <body class="grain">
+    <div id="root"></div>
+    <div class="vignette"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
