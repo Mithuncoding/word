@@ -340,6 +340,7 @@ export default function App() {
                 data={journeyData}
                 onClose={() => { setShowPanel(false); playSound('click'); }}
                 activeWaypointIndex={activeWaypointIndex}
+                onWaypointChange={setActiveWaypointIndex}
               />
             )}
           </>

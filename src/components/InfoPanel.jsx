@@ -14,11 +14,36 @@ const LANG_MAP = {
   'English': 'en-GB', 'Middle English': 'en-GB', 'American English': 'en-US'
 }
 
-export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak }) {
+export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak, onWaypointChange }) {
   const [copied, setCopied] = useState(false)
   const [isMobileMinimized, setIsMobileMinimized] = useState(false)
+  
+  // Scroll Spy Logic
+  useEffect(() => {
+    if (!data || !onWaypointChange) return
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const idx = parseInt(entry.target.getAttribute('data-step-index'))
+          if (!isNaN(idx)) {
+            onWaypointChange(idx)
+          }
+        }
+      })
+    }, {
+      root: document.querySelector('#info-panel-content'), // Use the scrollable container as root
+      threshold: 0.6 // Trigger when 60% visible
+    })
+
+    const steps = document.querySelectorAll('.journey-step')
+    steps.forEach(step => observer.observe(step))
+
+    return () => observer.disconnect()
+  }, [data, onWaypointChange])
 
   if (!data) return null
+  // ... existing code ...
 
   const getVoiceLang = (langName) => {
     // Default to GB English if unknown
@@ -101,7 +126,7 @@ export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak 
       </div>
 
       {/* Content (Scrollable) */}
-      <div className={`flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar ${isMobileMinimized ? 'hidden md:block' : ''}`}>
+      <div id="info-panel-content" className={`flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar ${isMobileMinimized ? 'hidden md:block' : ''}`}>
         {/* Origin */}
         <section className="space-y-4">
           <div className="px-2 py-1 inline-block text-[10px] font-bold uppercase"
@@ -160,7 +185,7 @@ export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak 
             style={{ '--tw-before-bg': 'var(--text-primary)' }}>
             <div className="absolute left-[3px] top-2 bottom-2 w-[1px]" style={{ background: 'var(--text-primary)' }} />
             {data.journey.map((step, idx) => (
-              <div key={idx} className={`relative transition-all ${idx <= activeWaypointIndex ? 'opacity-100' : 'opacity-20'}`}>
+              <div key={idx} data-step-index={idx} className={`journey-step relative transition-all ${idx <= activeWaypointIndex ? 'opacity-100' : 'opacity-20'}`}>
                 <div className={`absolute -left-[27px] top-1 w-2 h-2 border transition-colors`}
                   style={{
                     borderColor: 'var(--text-primary)',
