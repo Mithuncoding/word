@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { X, MapPin, Anchor, Landmark, Lightbulb, Volume2, Share2, Copy } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { X, MapPin, Anchor, Landmark, Lightbulb, Volume2, Share2, Copy, ChevronUp, ChevronDown } from 'lucide-react'
 
 // Language Mapping for Polyglot TTS
 const LANG_MAP = {
@@ -16,6 +16,7 @@ const LANG_MAP = {
 
 export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak }) {
   const [copied, setCopied] = useState(false)
+  const [isMobileMinimized, setIsMobileMinimized] = useState(false)
 
   if (!data) return null
 
@@ -56,25 +57,34 @@ export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak 
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-full md:w-[480px] bg-[var(--bg-panel)] backdrop-blur-md shadow-2xl transform transition-transform duration-500 ease-out z-50 flex flex-col border-l border-[var(--text-secondary)] translate-x-0`}
+      className={`fixed bottom-0 md:top-0 right-0 w-full md:w-[480px] bg-[var(--bg-panel)] backdrop-blur-md shadow-2xl transform transition-all duration-500 ease-out z-50 flex flex-col md:border-l border-[var(--text-secondary)] translate-x-0
+        ${isMobileMinimized ? 'h-[80px]' : 'h-[60vh]'} md:h-full rounded-t-3xl md:rounded-none`}
     >
+      {/* Mobile Drag Handle / Toggle */}
+      <div 
+        onClick={() => setIsMobileMinimized(!isMobileMinimized)}
+        className="md:hidden w-full h-6 flex items-center justify-center cursor-pointer border-b border-[var(--text-primary)]/20 active:bg-black/5"
+      >
+        <div className="w-12 h-1 bg-[var(--text-secondary)] rounded-full opacity-50" />
+      </div>
+
       {/* Header */}
-      <div className="p-6 border-b flex justify-between items-start" style={{ borderColor: 'var(--text-primary)' }}>
-        <div>
+      <div className="p-4 md:p-6 border-b flex justify-between items-start shrink-0" style={{ borderColor: 'var(--text-primary)' }}>
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="text-4xl font-doto capitalize leading-none">{data.word}</h1>
-            <button onClick={() => speakWord(data.word, 'English')} className="p-1 opacity-40 hover:opacity-100 transition-opacity" title="Pronounce">
+            <h1 className="text-2xl md:text-4xl font-doto capitalize leading-none truncate">{data.word}</h1>
+            <button onClick={() => speakWord(data.word, 'English')} className="p-1 opacity-40 hover:opacity-100 transition-opacity shrink-0" title="Pronounce">
               <Volume2 size={16} />
             </button>
           </div>
-          <p className="text-[10px] font-bold tracking-widest uppercase mt-1" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-[10px] font-bold tracking-widest uppercase mt-1 truncate" style={{ color: 'var(--text-secondary)' }}>
             / Definition: {data.currentMeaning}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0 ml-2">
            <button
             onClick={handleCopyPassport}
-            className="p-1 border transition-colors hover:bg-[var(--accent)] hover:text-black"
+            className="p-1 border transition-colors hover:bg-[var(--accent)] hover:text-black hidden md:block" // Hide share on very small screens if space is tight, or keep it
             style={{ borderColor: 'var(--text-primary)', color: 'var(--text-primary)' }}
             title="Copy Passport"
           >
@@ -90,8 +100,8 @@ export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak 
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+      {/* Content (Scrollable) */}
+      <div className={`flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar ${isMobileMinimized ? 'hidden md:block' : ''}`}>
         {/* Origin */}
         <section className="space-y-4">
           <div className="px-2 py-1 inline-block text-[10px] font-bold uppercase"
