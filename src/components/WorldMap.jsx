@@ -8,7 +8,7 @@ const getFlag = (cc) => {
   return cc.toUpperCase().split('').map(c => String.fromCodePoint(c.charCodeAt(0) + 127397)).join('')
 }
 
-export default function WorldMap({ journeyData, activeWaypointIndex, isPanelOpen }) {
+export default function WorldMap({ journeyData, activeWaypointIndex, isPanelOpen, isMobileExpanded }) {
   const svgRef = useRef(null)
   const zoomContainerRef = useRef(null)
   const baseMapRef = useRef(null)
@@ -26,18 +26,27 @@ export default function WorldMap({ journeyData, activeWaypointIndex, isPanelOpen
   const effectiveW = isPanelOpen ? w - panelW : w
 
   const projection = useMemo(() => {
-    // Mobile adjustment: if panel is open (bottom sheet), move map UP by adjusting center Y
-    // Desktop adjustment: if panel is open (side panel), move map LEFT by adjusting center X (handled by effectiveW)
+    // Mobile adjustment: 
+    // If panel is Open but NOT Expanded (25% height), map has 75% space. Center in top 75% (approx 37.5%).
+    // If panel is Expanded (75% height), map has 25% space. Center in top 25% (approx 12.5%).
     
-    let translateY = h / 2.2
+    let translateY = h / 2.2 // Default desktop/full centering (approx 45%)
+
     if (w < 768 && isPanelOpen) {
-      translateY = h / 2.2 - (h * 0.25) // Move map UP by 25% of screen height
+      if (isMobileExpanded) {
+        // Panel covers 75%, leaving top 25%. Center map in top 25%.
+        translateY = h * 0.2 
+      } else {
+        // Panel covers 25%, leaving top 75%. Center map in top 75%.
+        // Standard h/2.2 (45%) is actually close to 37.5%, but let's nudge it slightly up to be perfect.
+        translateY = h * 0.4
+      }
     }
 
     return d3.geoNaturalEarth1()
-      .scale(w / 5.5)
+      .scale(w / 4.5) // Slightly larger scale for mobile impact? or keep 5.5
       .translate([w / 2, translateY])
-  }, [w, h, isPanelOpen])
+  }, [w, h, isPanelOpen, isMobileExpanded])
   const pathGen = d3.geoPath().projection(projection)
 
   // Init base map
@@ -103,7 +112,11 @@ export default function WorldMap({ journeyData, activeWaypointIndex, isPanelOpen
     
     // Mobile Offset for Zoom
     if (w < 768 && isPanelOpen) {
-       cy = h * 0.25 // Center zoom target in the top 25-30% of screen
+       if (isMobileExpanded) {
+         cy = h * 0.2 // Zoom into top 25%
+       } else {
+         cy = h * 0.4 // Zoom into top 75%
+       }
     }
 
     d3.select(svgRef.current).transition()
@@ -112,7 +125,7 @@ export default function WorldMap({ journeyData, activeWaypointIndex, isPanelOpen
       .call(zoomRef.current.transform,
         d3.zoomIdentity.translate(cx, cy).scale(scale).translate(-tx, -ty)
       )
-  }, [journeyData, activeWaypointIndex, effectiveW, h, projection, w, isPanelOpen])
+  }, [journeyData, activeWaypointIndex, effectiveW, h, projection, w, isPanelOpen, isMobileExpanded])
 
   const renderJourney = () => {
     if (!journeyData) return null

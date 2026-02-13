@@ -37,7 +37,9 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem('wanderword-favorites')) || [] } catch { return [] }
   })
   
-
+  
+  // Mobile UI State
+  const [isMobileExpanded, setIsMobileExpanded] = useState(false)
   
   // Suggestions carousel state
   const [startIndex, setStartIndex] = useState(0)
@@ -280,6 +282,7 @@ export default function App() {
           journeyData={journeyData} 
           activeWaypointIndex={activeWaypointIndex}
           isPanelOpen={showPanel && !!journeyData}
+          isMobileExpanded={isMobileExpanded}
         />
 
         {/* Loading Overlay */}
@@ -341,6 +344,8 @@ export default function App() {
                 onClose={() => { setShowPanel(false); playSound('click'); }}
                 activeWaypointIndex={activeWaypointIndex}
                 onWaypointChange={setActiveWaypointIndex}
+                isMobileExpanded={isMobileExpanded}
+                setIsMobileExpanded={setIsMobileExpanded}
               />
             )}
           </>

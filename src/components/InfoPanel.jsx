@@ -14,9 +14,8 @@ const LANG_MAP = {
   'English': 'en-GB', 'Middle English': 'en-GB', 'American English': 'en-US'
 }
 
-export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak, onWaypointChange }) {
+export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak, onWaypointChange, isMobileExpanded, setIsMobileExpanded }) {
   const [copied, setCopied] = useState(false)
-  const [isMobileMinimized, setIsMobileMinimized] = useState(false)
   
   // Scroll Spy Logic
   useEffect(() => {
@@ -83,14 +82,17 @@ export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak,
   return (
     <div
       className={`fixed bottom-0 md:top-0 right-0 w-full md:w-[480px] bg-[var(--bg-panel)] backdrop-blur-md shadow-2xl transform transition-all duration-500 ease-out z-50 flex flex-col md:border-l border-[var(--text-secondary)] translate-x-0
-        ${isMobileMinimized ? 'h-[80px]' : 'h-[60vh]'} md:h-full rounded-t-3xl md:rounded-none`}
+        ${isMobileExpanded ? 'h-[75vh]' : 'h-[25vh]'} md:h-full rounded-t-3xl md:rounded-none`}
     >
       {/* Mobile Drag Handle / Toggle */}
       <div 
-        onClick={() => setIsMobileMinimized(!isMobileMinimized)}
+        onClick={() => setIsMobileExpanded(!isMobileExpanded)}
         className="md:hidden w-full h-6 flex items-center justify-center cursor-pointer border-b border-[var(--text-primary)]/20 active:bg-black/5"
       >
-        <div className="w-12 h-1 bg-[var(--text-secondary)] rounded-full opacity-50" />
+        <div className={`w-12 h-1 bg-[var(--text-secondary)] rounded-full opacity-50 transition-transform ${isMobileExpanded ? 'rotate-0' : ''}`} />
+        <div className="absolute right-4 top-1 opacity-50">
+          {isMobileExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+        </div>
       </div>
 
       {/* Header */}
@@ -126,7 +128,7 @@ export default function InfoPanel({ data, onClose, activeWaypointIndex, onSpeak,
       </div>
 
       {/* Content (Scrollable) */}
-      <div id="info-panel-content" className={`flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar ${isMobileMinimized ? 'hidden md:block' : ''}`}>
+      <div id="info-panel-content" className={`flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar`}>
         {/* Origin */}
         <section className="space-y-4">
           <div className="px-2 py-1 inline-block text-[10px] font-bold uppercase"
